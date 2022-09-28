@@ -7,8 +7,8 @@ import hashlib
 import json
 
 Mining_DIFFCULTY = 3
-MINING_SENDER = 'n23n3b3b4( senders adress)'
-Mining_REWARD = 1.3 
+MINING_SENDER = 'n23n3b3b4( Senders adress)'
+Mining_REWARD = 1.3
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
 logger = logging.getLogger(__name__)
@@ -18,11 +18,14 @@ class Blockchain(object):
     Blockchain class
     ----------
     transaction_pool : list
-        store the list of transaction 
+        Store the list of transaction
+        When next block is crearted the infomation inside
+        the poool is stored in next block and the pool is empty.
     chain : list
         store the list of block(s)
+        [block] -> [block] -> [block]
     '''
-    def __init__(self, blockchain_address = None):    
+    def __init__(self, blockchain_address = None):
         self.transaction_pool = []
         self.chain = []
         self.create_block(0, self.hash({}))
@@ -38,12 +41,12 @@ class Blockchain(object):
         self.chain.append(block)
         self.transaction_pool = []
         return block
-    
+
     def hash(self, block):
         sorted_block = json.dumps(block, sort_keys= True)
         return hashlib.sha256(sorted_block.encode()).hexdigest()
 
-    def add_transaction(self, sender_blockchain_address, 
+    def add_transaction(self, sender_blockchain_address,
                     receipient_blockchain_address, value):
         transaction = utils.sorted_dict_by_key({
             'sender_blockchain_address': sender_blockchain_address,
@@ -53,10 +56,10 @@ class Blockchain(object):
         self.transaction_pool.append(transaction)
         return True
 
-    def valid_proof(self, transactions,previous_hash, 
+    def valid_proof(self, transactions,previous_hash,
                     nonce, difficulty= Mining_DIFFCULTY):
-        '''This fucntion calcualte the nonce 
-            .
+        '''This fucntion calcualte the nonce.
+
         '''
         guess_block =utils.sorted_dict_by_key({
             'timestamp': time.time(),
@@ -68,7 +71,7 @@ class Blockchain(object):
         return guess_hash[:difficulty] == '0'*difficulty
 
     def proof_of_work(self):
-        """The fucntion calculates nonce 
+        """The fucntion calculates nonce
             untill it matchs given length of first digit of number.
 
         Returns:
@@ -101,14 +104,14 @@ if __name__ == '__main__':
     block_chain = Blockchain(blockchain_address=my_blockchain_address)
     utils.pprint(block_chain.chain)
 
-    block_chain.add_transaction('A','b', 1.0)
+    block_chain.add_transaction('A-san','b-san', 1.0)
     block_chain.mining()
     print("現在の hash "+ block_chain.hash(block_chain.chain[0]))
     # previous_hash = block_chain.hash(block_chain.chain[-1])
     # nonce = block_chain.proof_of_work()
     # block_chain.create_block(nonce, previous_hash)
 
-    block_chain.add_transaction('c','f', 21.0)
+    block_chain.add_transaction('c-san','f-san', 21.0)
     block_chain.mining()
     print("現在の hash "+ block_chain.hash(block_chain.chain[-2]))
 
