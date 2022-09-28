@@ -7,7 +7,7 @@ import hashlib
 import json
 
 Mining_DIFFCULTY = 3
-MINING_SENDER = 'n23n3b3b4( Senders adress)'
+MINING_SENDER = 'n23n3b3b4(Senders adress on network)'
 Mining_REWARD = 1.3
 
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
@@ -85,7 +85,8 @@ class Blockchain(object):
         return nonce
 
     def mining(self):
-        """Function
+        """Function that register address in server and recive rewards when
+        mining is over
         """
         self.add_transaction(
             sender_blockchain_address= MINING_SENDER,
@@ -96,7 +97,19 @@ class Blockchain(object):
         previous_hash = self.hash(self.chain[-1])
         self.create_block(nonce, previous_hash)
         logger.info({"action":'mining', 'status':'sucess'})
+        return True
 
+
+    def calculate_total_amount(self, blockchain_address):
+        total_amount = 0.0
+        for block in self.chain:
+            for transaction in block['transactions']:
+                value = float(transaction['value'])
+                if blockchain_address == transaction['receipient_blockchain_address']:
+                    total_amount += value
+                if blockchain_address == transaction['sender_blockchain_address']:
+                    total_amount -= value
+        return total_amount
 
 
 if __name__ == '__main__':
@@ -106,16 +119,15 @@ if __name__ == '__main__':
 
     block_chain.add_transaction('A-san','b-san', 1.0)
     block_chain.mining()
-    print("現在の hash "+ block_chain.hash(block_chain.chain[0]))
-    # previous_hash = block_chain.hash(block_chain.chain[-1])
-    # nonce = block_chain.proof_of_work()
-    # block_chain.create_block(nonce, previous_hash)
-
-    block_chain.add_transaction('c-san','f-san', 21.0)
-    block_chain.mining()
-    print("現在の hash "+ block_chain.hash(block_chain.chain[-2]))
-
-    # previous_hash = block_chain.hash(block_chain.chain[-1])
-    # nonce = block_chain.proof_of_work()
-    # block_chain.create_block(nonce, previous_hash)
     utils.pprint(block_chain.chain)
+    #print("現在の hash "+ block_chain.hash(block_chain.chain[0]))
+
+    block_chain.add_transaction('c-san','f-san', 2.0)
+    block_chain.add_transaction('X','Y', 3.0)
+    block_chain.mining()
+    #print("現在の hash "+ block_chain.hash(block_chain.chain[-2]))
+    utils.pprint(block_chain.chain)
+
+    print('my', block_chain.calculate_total_amount(my_blockchain_address))
+    print('C', block_chain.calculate_total_amount('c-san'))
+    print('D', block_chain.calculate_total_amount('f-san'))
